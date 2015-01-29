@@ -23,12 +23,28 @@ int* set_indicies(int i_x, int i_y, int i_z)
   return x;
 }
 
-void free_indicies(int* i)
-{
-  free(i);
+field_val* field_val_new(char* name, double* data_set){
+  
+  field_val* f = (field_val*)malloc(sizeof(field_val));
+  if(!f){
+    perror("malloc");
+      //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
+  }
+/*
+  char* n = (char*)malloc(strlen(name)*sizeof(char));
+  if(!n){
+    perror("malloc");
+      //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
+  }
+  */
+  f->name = name;
+  f->field_str = str_stat_new(data_set);
+
+  return f;
+
 }
 
-var_stats* str_stat_new(double* volume)
+var_stats* str_stat_new(double* data_set)
 {
 
   var_stats * n = (var_stats*)malloc(sizeof(var_stats));
@@ -38,7 +54,7 @@ var_stats* str_stat_new(double* volume)
   }
 
   n->histo = str_histo_new();
-  n->data_set = volume;
+  n->data_set = data_set;
   n->mean = 0;
   n->min = 0;
   n->max =0;
@@ -211,6 +227,19 @@ void print_histo(char* var_name, histogram* histo)
     printf("%i-%i: %i\n", lower,upper, count);
   }
 }
+
+void free_indicies(int* i)
+{
+  free(i);
+}
+
+void free_field_val(field_val* fv)
+{
+  free_var_struct(fv->field_str);
+  //free(fv->name);
+  free(fv);
+}
+
 void free_var_struct(var_stats * var_struct)
 {
   free_histo_struct(var_struct->histo);

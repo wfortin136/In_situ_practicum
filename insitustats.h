@@ -22,9 +22,18 @@ struct var_stats
   //int numcols; //number of columns in histogram
 };
 typedef struct var_stats var_stats;
+
+struct field_val
+{
+  char* name;
+  var_stats* field_str;
+};
+typedef struct field_val field_val;
 //********************
 
-var_stats* str_stat_new(double* volume);
+field_val* field_val_new(char* name, double* data_set);
+
+var_stats* str_stat_new(double* data_set);
 
 var_stats* str_stat_new_g();
 
@@ -42,6 +51,8 @@ void compute_histo(histogram * histo, double* data_set,
 void print_stats(char* var_name, var_stats * var_struct);
 
 void print_histo(char* var_name, histogram* histo);
+
+void free_field_val(field_val* fv);
 
 void free_var_struct(var_stats * var_struct);
 
