@@ -15,6 +15,7 @@
 #include <mpi.h>
 //Billy added
 #include <stdint.h>
+#include "insitustats.h"
 
 int dim = 3;
 
@@ -28,6 +29,7 @@ static int l_x = 0;
 static int l_y = 0;
 static int l_z = 0;
 
+/*
 //****************
 //Billy
 //Struct for statistics
@@ -52,7 +54,7 @@ struct var_stats
 };
 typedef struct var_stats var_stats;
 //********************
-
+*/
 //
 
 static int parse_args(int argc, char **argv);
@@ -67,7 +69,7 @@ static void gen_data (double* volume,
 
 static void gen_data_sparse (double* volume,
                      long long my_off_z, long long my_off_y, long long my_off_x);
-
+/*
 //**************************************
 //Billy
 var_stats* str_stat_new(double* volume);
@@ -89,7 +91,7 @@ static void free_var_struct(var_stats * var_struct);
 
 static void free_histo_struct(histogram * histo);
 //****************************************
-
+*/
 //
 
 int main(int argc, char **argv)
@@ -101,7 +103,7 @@ int main(int argc, char **argv)
   uint64_t start_extents_z, start_extents_y, start_extents_x;
   int block_id_x, block_id_y, block_id_z;
   int i,j,k;
-  
+  int* l_indicies=0; 
  
   // The buffers/ variables
   // Let's have Pressure, Temperature, Density
@@ -220,6 +222,7 @@ int main(int argc, char **argv)
     MPI_Abort(MPI_COMM_WORLD, -1);
   }
   
+  l_indicies = set_indicies(l_x, l_y, l_z);
   
   // Initialize Variables to a value for testing
   // Note: Currently Set this to the Global Index Value
@@ -278,9 +281,9 @@ int main(int argc, char **argv)
     }
   }
 */
-  compute_stats(l_pressure_str);
-  compute_stats(l_temp_str);
-  compute_stats(l_density_str);
+  compute_stats(l_pressure_str, l_indicies);
+  compute_stats(l_temp_str, l_indicies);
+  compute_stats(l_density_str, l_indicies);
   mean =(double)rank;
 
   /*
@@ -350,21 +353,21 @@ int main(int argc, char **argv)
 
  
   compute_histo(l_pressure_str->histo, l_pressure_str->data_set, 
-      g_pressure_str->min, g_pressure_str->max);
+      g_pressure_str->min, g_pressure_str->max, l_indicies);
   compute_histo(l_density_str->histo, l_density_str->data_set, 
-      g_density_str->min, g_density_str->max);
+      g_density_str->min, g_density_str->max, l_indicies);
   compute_histo(l_temp_str->histo, l_temp_str->data_set, 
-      g_temp_str->min, g_temp_str->max); 
+      g_temp_str->min, g_temp_str->max, l_indicies); 
   
   //Need to compute global histogram with local data in order to properly
   //allocate space for MPI_reduce
   //if(rank==0){
     compute_histo(g_pressure_str->histo, l_pressure_str->data_set, 
-        g_pressure_str->min, g_pressure_str->max);
+        g_pressure_str->min, g_pressure_str->max, l_indicies);
     compute_histo(g_density_str->histo, l_density_str->data_set, 
-        g_density_str->min, g_density_str->max);
+        g_density_str->min, g_density_str->max, l_indicies);
     compute_histo(g_temp_str->histo, l_temp_str->data_set, 
-        g_temp_str->min, g_temp_str->max);
+        g_temp_str->min, g_temp_str->max, l_indicies);
   //}
    
   MPI_Allreduce(l_pressure_str->histo->count, g_pressure_str->histo->count, 
@@ -588,7 +591,7 @@ static void gen_data_sparse(double* volume,
   
 }
 
-
+/*
 //****************************************************
 //Billy
 var_stats* str_stat_new(double* volume)
@@ -622,12 +625,12 @@ var_stats* str_stat_new_g()
   }
 
   //Placeholder in case if empty data set for global structure
-  /*
+  ///
   n->data_set = (double*)malloc(sizeof(int));
   if(!(n->data_set)){
     perror("malloc");
   }
-  */
+  ///
   n->histo = str_histo_new();
   n->mean = 0;
   n->min = 0;
@@ -793,3 +796,4 @@ static void free_histo_struct(histogram * histo)
   free(histo);
 }
 //*********************************************************
+*/

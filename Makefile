@@ -16,8 +16,8 @@ all: 3D_Grid
 %.o: %.c 
 	$(MPICC) $(MPI_CFLAGS) $< -c -o $@
 
-3D_Grid: parallel_3D.o 
-	$(MPICC) -o 3D_Grid parallel_3D.o -lm	
+3D_Grid: insitustats.o parallel_3D.o 
+	$(MPICC) -o 3D_Grid insitustats.o parallel_3D.o -lm	
 
 clean:
 	rm -f *.a *.o a.out core* 3D_Grid
