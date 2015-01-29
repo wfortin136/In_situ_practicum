@@ -1,0 +1,21 @@
+==6555== Memcheck, a memory error detector
+==6555== Copyright (C) 2002-2013, and GNU GPL'd, by Julian Seward et al.
+==6555== Using Valgrind-3.10.0.SVN and LibVEX; rerun with -h for copyright info
+==6555== Command: ./3D_Grid -g 4x4x4 -l 4x4x4
+==6555== Parent PID: 6554
+==6555== 
+==6555== 
+==6555== HEAP SUMMARY:
+==6555==     in use at exit: 1,764 bytes in 18 blocks
+==6555==   total heap usage: 477 allocs, 459 frees, 4,255,162 bytes allocated
+==6555== 
+==6555== LEAK SUMMARY:
+==6555==    definitely lost: 1,656 bytes in 6 blocks
+==6555==    indirectly lost: 108 bytes in 12 blocks
+==6555==      possibly lost: 0 bytes in 0 blocks
+==6555==    still reachable: 0 bytes in 0 blocks
+==6555==         suppressed: 0 bytes in 0 blocks
+==6555== Rerun with --leak-check=full to see details of leaked memory
+==6555== 
+==6555== For counts of detected and suppressed errors, rerun with: -v
+==6555== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

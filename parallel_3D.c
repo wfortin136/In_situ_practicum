@@ -3,7 +3,7 @@
 //  
 //
 //  Created by Venkatram Vishwanath on 12/17/14.
-//
+//  Updated by Billy Fortin on 1/23/2015
 //
 
 #include <stdio.h>
@@ -31,15 +31,24 @@ static int l_z = 0;
 //****************
 //Billy
 //Struct for statistics
+struct histogram
+{
+  int* index;//index values for ranges in histogram
+  int* count;//count for index values
+  int numcols; //number of columns in histogram
+};
+typedef struct histogram histogram;
+
 struct var_stats
 {
   double* data_set;
   double mean; 
   double min;
   double max;
-  int* histo_index;//index values for ranges in histogram
-  int* histo;//count for index values
-  int numcols; //number of columns in histogram
+  histogram* histo;
+  //int* histo_index;//index values for ranges in histogram
+  //int* histo;//count for index values
+  //int numcols; //number of columns in histogram
 };
 typedef struct var_stats var_stats;
 //********************
@@ -63,15 +72,22 @@ static void gen_data_sparse (double* volume,
 //Billy
 var_stats* str_stat_new(double* volume);
 
+var_stats* str_stat_new_g();
+
+histogram* str_histo_new();
+
 static void compute_stats(var_stats * var_struct);
 
-static void compute_histo(var_stats * var_struct);
+//static void compute_histo(var_stats * var_struct);
+static void compute_histo(histogram * histo, double* data_set, double min, double max);
 
 static void print_stats(char* var_name, var_stats * var_struct);
 
-static void print_histo(char* var_name, var_stats * var_struct);
+static void print_histo(char* var_name, histogram* histo);
 
-static void free_struct(var_stats * var_struct);
+static void free_var_struct(var_stats * var_struct);
+
+static void free_histo_struct(histogram * histo);
 //****************************************
 
 //
@@ -93,22 +109,24 @@ int main(int argc, char **argv)
   double* pressure = 0;
   double* temperature = 0;
   double* density = 0;
-  
+
   //***************************************************
   //Billy
-  double mean_pr=0;
-  double min_pr=0;
-  double max_pr=0;  
-//  double* mean =0; was using mean to test what was causing seg fault
-  //
-//  mean = (double*) malloc(sizeof(double*));
-  //***********************************************
+  double mean_2=0;
+  double mean_1=0;
+  double mean =0; //was using mean to test what was causing seg fault
+  //mean = (double*) malloc(sizeof(double));
+  //****************************************************
 
+  //mean_1 = (double*) malloc(sizeof(double));
+  //mean_2 = (double*) malloc(sizeof(double));
+  
   // Initialize MPI
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &nprocs);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  
+
+  //sleep(60);
   ////////////////////////////
   // parse args on rank 0
   ////////////////////////////
@@ -128,6 +146,11 @@ int main(int argc, char **argv)
 				number of procs (%d)\n", tot_blocks, nprocs);
           MPI_Abort(MPI_COMM_WORLD, -1);
       }
+
+      //***************************************************
+      //Billy
+      //mean_2 = (double*) malloc(nprocs*sizeof(double));
+      //***********************************************
   }
   
   /////////////////////////////
@@ -148,7 +171,6 @@ int main(int argc, char **argv)
   tot_blocks_y = (g_y/l_y);
   tot_blocks_x = (g_x/l_x);
   
-
   // start extents in Z, Y, X for my block
   if (nprocs == 1)
   {
@@ -227,7 +249,7 @@ int main(int argc, char **argv)
 
   // DEBUG: Print the values of the variables..
     
-  MPI_Barrier(MPI_COMM_WORLD);
+  //MPI_Barrier(MPI_COMM_WORLD);
   
   /////////////////////////////
   // Iterate over multiple timesteps?
@@ -237,9 +259,13 @@ int main(int argc, char **argv)
   //**********************************  
   //Billy
   //Define struct for stats
-  var_stats* pressure_str = str_stat_new(pressure);
-  var_stats* temp_str = str_stat_new(temperature);
-  var_stats* density_str = str_stat_new(density);
+  var_stats* l_pressure_str = str_stat_new(pressure);
+  var_stats* l_temp_str = str_stat_new(temperature);
+  var_stats* l_density_str = str_stat_new(density);
+  
+  var_stats* g_pressure_str = str_stat_new_g();
+  var_stats* g_temp_str = str_stat_new_g();
+  var_stats* g_density_str = str_stat_new_g();
 /*
   for(j=0; j<nprocs; j++){
     MPI_Barrier(MPI_COMM_WORLD);
@@ -252,54 +278,148 @@ int main(int argc, char **argv)
     }
   }
 */
-  compute_stats(pressure_str);
-  compute_stats(temp_str);
-  compute_stats(density_str);
-//  *mean =rank;
+  compute_stats(l_pressure_str);
+  compute_stats(l_temp_str);
+  compute_stats(l_density_str);
+  mean =(double)rank;
 
-
-  print_histo("Pressure", pressure_str);
-  print_histo("Temperature", temp_str);
-  print_histo("Density", density_str);
+  /*
+  print_histo("Pressure", pressure_str->histo);
+  print_histo("Temperature", temp_str->histo);
+  print_histo("Density", density_str->histo);
   print_stats("Pressure", pressure_str);
   print_stats("Temperature", temp_str);
   print_stats("Density", density_str);
+  */
+  
   //
   //*************************************************
-  MPI_Barrier(MPI_COMM_WORLD);
+  //MPI_Barrier(MPI_COMM_WORLD);
  
   ////////////////////////////////
   //Collate Statistics across Processes
   ////////////////////////////////
   //************************************************
+  int s=0;
+ 
+  //MPI_Type_size(MPI_DOUBLE, &s);
+  //printf("System: %li MPI: %d\n", sizeof(double), s);
   //Billy    
-  if(rank==0)printf("**BEFORE**\nGlebal Mean:%f\nGlobal Min:%f\nGlobal Max:%f\n", mean_pr, min_pr, max_pr); 
-  //collate_procs(pressure_str, nprocs
+  if(rank==0){
+    printf("**BEFORE**\n");
+    printf("Pressure\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
+        g_pressure_str->mean, g_pressure_str->min, g_pressure_str->max);
+    printf("Density\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
+        g_density_str->mean, g_density_str->min, g_density_str->max);
+    printf("Temperature\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
+        g_temp_str->mean, g_temp_str->min, g_temp_str->max);
+  }
 
   //printf("mean: %f \n", pressure_str->mean);
 
-  MPI_Barrier(MPI_COMM_WORLD);
+//**************TEST WITH NOT STRUCT LOCAL MEAN****************
+//
+  //MPI_Barrier(MPI_COMM_WORLD);
+  //MPI_Allreduce(&mean_1, &mean_2, 1,MPI_DOUBLE, 
+  //    MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(&(l_pressure_str->mean), &(g_pressure_str->mean), 1,MPI_DOUBLE, 
+      MPI_SUM, MPI_COMM_WORLD);
 
-  MPI_Reduce(&(pressure_str->mean), &mean_pr, nprocs,MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-// MPI_Reduce(mean, &mean_pr, nprocs,MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&(pressure_str->min), &min_pr, nprocs,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&(pressure_str->max), &max_pr, nprocs,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-  mean_pr/=nprocs;
-  if(rank==0) printf("**AFTER**\nGlobal Mean:%f\nGlobal Min:%f\nGlobal Max:%f\n", mean_pr, min_pr, max_pr); 
+  MPI_Allreduce(&(l_density_str->mean), &(g_density_str->mean), 1,MPI_DOUBLE, 
+      MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(&(l_temp_str->mean), &(g_temp_str->mean), 1,MPI_DOUBLE, 
+      MPI_SUM, MPI_COMM_WORLD);
+
+  MPI_Allreduce(&(l_pressure_str->min), &(g_pressure_str->min), 1,MPI_DOUBLE, 
+      MPI_MIN, MPI_COMM_WORLD);
+  MPI_Allreduce(&(l_density_str->min), &(g_density_str->min), 1,MPI_DOUBLE, 
+      MPI_MIN, MPI_COMM_WORLD);
+  MPI_Allreduce(&(l_temp_str->min), &(g_temp_str->min), 1,MPI_DOUBLE, 
+      MPI_MIN, MPI_COMM_WORLD);
+  
+  MPI_Allreduce(&(l_pressure_str->max), &(g_pressure_str->max), 1,MPI_DOUBLE, 
+      MPI_MAX, MPI_COMM_WORLD);
+  MPI_Allreduce(&(l_density_str->max), &(g_density_str->max), 1,MPI_DOUBLE, 
+      MPI_MAX, MPI_COMM_WORLD);
+  MPI_Allreduce(&(l_temp_str->max), &(g_temp_str->max), 1,MPI_DOUBLE, 
+      MPI_MAX, MPI_COMM_WORLD);
+ 
+  g_pressure_str->mean/=nprocs;
+  g_density_str->mean/=nprocs;
+  g_temp_str->mean/=nprocs;
+
+ 
+  compute_histo(l_pressure_str->histo, l_pressure_str->data_set, 
+      g_pressure_str->min, g_pressure_str->max);
+  compute_histo(l_density_str->histo, l_density_str->data_set, 
+      g_density_str->min, g_density_str->max);
+  compute_histo(l_temp_str->histo, l_temp_str->data_set, 
+      g_temp_str->min, g_temp_str->max); 
+  
+  //Need to compute global histogram with local data in order to properly
+  //allocate space for MPI_reduce
+  //if(rank==0){
+    compute_histo(g_pressure_str->histo, l_pressure_str->data_set, 
+        g_pressure_str->min, g_pressure_str->max);
+    compute_histo(g_density_str->histo, l_density_str->data_set, 
+        g_density_str->min, g_density_str->max);
+    compute_histo(g_temp_str->histo, l_temp_str->data_set, 
+        g_temp_str->min, g_temp_str->max);
+  //}
+   
+  MPI_Allreduce(l_pressure_str->histo->count, g_pressure_str->histo->count, 
+      g_pressure_str->histo->numcols, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(l_temp_str->histo->count, g_temp_str->histo->count, 
+      g_temp_str->histo->numcols, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(l_density_str->histo->count, g_density_str->histo->count, 
+      g_density_str->histo->numcols, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+  
+  //pressure_str->histo=
+
+/*  
+  for(i=0; i<; i++){
+    
+    compute_histo( 
+  }
+*/
+  
+
+  if(rank==0){
+    //print_histo("Pressure", l_pressure_str->histo);
+    printf("**AFTER**\n");
+    printf("Pressure\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
+        g_pressure_str->mean, g_pressure_str->min, g_pressure_str->max);
+    printf("Density\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
+        g_density_str->mean, g_density_str->min, g_density_str->max);
+    printf("Temperature\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
+        g_temp_str->mean, g_temp_str->min, g_temp_str->max);
+    print_histo("Pressure", g_pressure_str->histo);
+    print_histo("Temperature", g_temp_str->histo);
+    print_histo("Density", g_density_str->histo);
+    //printf("mean test: %f\n", *mean_2);
+  }
+  
   //
   //********************************************************
   
-  MPI_Barrier(MPI_COMM_WORLD);
+  //MPI_Barrier(MPI_COMM_WORLD);
   /////////////////////////////
   // Clean up heap variables
   /////////////////////////////
 
   //***************************************
   //Billy
-//  free(mean);
-  free_struct(pressure_str);
-  free_struct(temp_str);
-  free_struct(density_str);
+  //free(mean);
+  //free(mean_1); 
+  //free(mean_2);
+  
+  free_var_struct(l_pressure_str);
+  free_var_struct(l_temp_str);
+  free_var_struct(l_density_str);
+  free_var_struct(g_pressure_str);
+  free_var_struct(g_temp_str);
+  free_var_struct(g_density_str);
   //
   
   if (pressure){
@@ -316,14 +436,13 @@ int main(int argc, char **argv)
     free(density);
     density = 0;
   }
-
+  fflush(stdout);
   //
-  printf("test1\n"); 
-  MPI_Barrier(MPI_COMM_WORLD);
+  //printf("test1\n");
+  //MPI_Barrier(MPI_COMM_WORLD);
   //****************************************
   MPI_Finalize();
-     
-  printf("test2");   
+  //printf("test: %d\n", rc);
   return(0);
 }
 
@@ -481,22 +600,61 @@ var_stats* str_stat_new(double* volume)
       //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
   }
 
-  n->histo = (int*)malloc(sizeof(int));
-  if(!(n->histo)){
-    perror("malloc");
-      //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
-  }
-  n->histo_index = (int*)malloc(sizeof(int));
-  if(!(n->histo_index)){
-    perror("malloc");
-  }
-
+  n->histo = str_histo_new();
   n->data_set = volume;
   n->mean = 0;
   n->min = 0;
   n->max =0;
   
   return n;
+}
+
+//Different then str_stat_new because it doesn't pass data set
+//May consider passing empty data set instead of allocating
+//within function
+var_stats* str_stat_new_g()
+{
+
+  var_stats * n = (var_stats*)malloc(sizeof(var_stats));
+  if(!n){
+    perror("malloc");
+      //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
+  }
+
+  //Placeholder in case if empty data set for global structure
+  /*
+  n->data_set = (double*)malloc(sizeof(int));
+  if(!(n->data_set)){
+    perror("malloc");
+  }
+  */
+  n->histo = str_histo_new();
+  n->mean = 0;
+  n->min = 0;
+  n->max =0;
+  
+  return n;
+}
+
+histogram* str_histo_new()
+{
+  histogram* h = (histogram*)malloc(sizeof(histogram));
+  if(!(h)){
+    perror("malloc");
+      //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
+  }
+
+  h->count = (int*)malloc(sizeof(int));
+  if(!(h->count)){
+    perror("malloc");
+  }
+
+  h->index = (int*)malloc(sizeof(int));
+  if(!(h->index)){
+    perror("malloc");
+  }
+
+  return h;
 }
 
 static void compute_stats(var_stats * var_struct)
@@ -513,17 +671,22 @@ static void compute_stats(var_stats * var_struct)
 
     sum+= var_struct->data_set[i];  
     if(var_struct->data_set[i]>max) max=var_struct->data_set[i];
-    else if(var_struct->data_set[i]<min) min=var_struct->data_set[i];
+    if(var_struct->data_set[i]<min) min=var_struct->data_set[i];
  
     //printf("index:%llu, volume:%f \n",i, var_struct->data_set[i]);
   }
   var_struct->mean= (sum/index);
   var_struct->min=min;
   var_struct->max=max;
-  compute_histo(var_struct); 
+  //Pulling out compute_histo into made program because we will compute
+  //using the global min and max
+
+  //compute_histo(var_struct->histo, var_struct->data_set, min, max); 
 }
 
-static void compute_histo(var_stats * var_struct)
+
+//static void compute_histo(var_stats * var_struct)
+static void compute_histo(histogram * histo, double* data_set, double min, double max)
 {
   int i, index, lower, upper;
   int j, range, step, numcols;
@@ -532,51 +695,58 @@ static void compute_histo(var_stats * var_struct)
 
   //Try and determine reasonable steps and ranges for histogram
   //make sure max int is larger than double max
-  range = (var_struct->max)-(var_struct->min)+1;
+  range = (max)-(min)+1;
   
-  if((2 % range)==1) range+=1;//make sure range is even
+  if((2 % range)!=0) range+=1;//make sure range is even
   numcols=range;
+  step=range/numcols;  
   //For now, assume more than 10 columns is too much. 
   //Arbitrary at this point
   while((numcols>10)){
     numcols/=2;
     //if((2 % range)==1) range+=1;//turn number even if odd
     step=range/numcols;//take integer portion of division
+
+    //printf("range: %i, step:%i,numcols:%i \n", range, step, numcols);
   }
   //printf("range: %i, step:%i,numcols:%i \n", range, step, numcols);
-  var_struct->numcols=numcols;
+  histo->numcols=numcols;
   
   //reseize array
-  var_struct->histo = realloc(var_struct->histo,sizeof(int)*numcols);
-  if(!(var_struct->histo)){
+  histo->count = realloc(histo->count,sizeof(int)*numcols);
+  if(!(histo->count)){
       perror("malloc");
       //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
   }
   
   //resize array
-  var_struct->histo_index = realloc(var_struct->histo_index,sizeof(int)*(numcols+1));
-  if(!(var_struct->histo_index)){
+  histo->index = realloc(histo->index,sizeof(int)*(numcols+1));
+  if(!(histo->index)){
       perror("malloc");
       //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
   }
-  var_struct->histo_index[0]=var_struct->min;
+  histo->index[0]=min;
 
   for(j=0; j<numcols; j++){
-    var_struct->histo_index[j+1]=var_struct->histo_index[j]+step;
-    var_struct->histo[j]=0;
+    histo->index[j+1]=histo->index[j]+step;
+    histo->count[j]=0;
   }
 
   //parse each value within data set and place in correct bin
   for(i=0; i<index; i++){
-    //printf("j:%llu, k:%llu, i:%llu, index:%llu\n",j,k,i,index);
+    
     for(j=0; j<numcols; j++){
-      lower= var_struct->histo_index[j];
-      upper= var_struct->histo_index[j+1];
-
-      if((var_struct->data_set[i]>=lower) && (var_struct->data_set[i]<upper)){
-        var_struct->histo[j]+=1;
+      //printf("j:%d, i:%d, index:%d\n",j,i,index);
+      lower= histo->index[j];
+      upper= histo->index[j+1];
+      //printf("L:%d U:%d j:%d\n", lower,upper, j);
+      //printf("data: %f\n",data_set[i]);
+      if((data_set[i]>=lower) && (data_set[i]<upper)){
+        histo->count[j]+=1;
+        //printf("data: %d\n",j);
       }
 
+      //printf("data: %d\n",j);
     }
     //printf("index:%llu, volume:%f \n",i, var_struct->data_set[i]);
   }
@@ -596,24 +766,30 @@ static void print_stats(char* var_name, var_stats * var_struct)
   printf("\n");
 }
 
-static void print_histo(char* var_name, var_stats * var_struct)
+static void print_histo(char* var_name, histogram* histo)
 {
   int i, x;
   int lower, upper, count;
   
-  x=var_struct->numcols;
+  x=histo->numcols;
   printf("***Histo-%s***\n", var_name);
   for(i=0; i<x; i++){
-    upper=var_struct->histo_index[i+1];
-    lower=var_struct->histo_index[i];
-    count=var_struct->histo[i]; 
+    upper=histo->index[i+1];
+    lower=histo->index[i];
+    count=histo->count[i]; 
     printf("%i-%i: %i\n", lower,upper, count);
   }
 }
-static void free_struct(var_stats * var_struct)
+static void free_var_struct(var_stats * var_struct)
 {
-  free(var_struct->histo);
-  free(var_struct->histo_index);
+  free_histo_struct(var_struct->histo);
   free(var_struct);
+}
+
+static void free_histo_struct(histogram * histo)
+{
+  free(histo->index);
+  free(histo->count);
+  free(histo);
 }
 //*********************************************************
