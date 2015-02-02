@@ -261,7 +261,6 @@ int main(int argc, char **argv)
   int s=0;
  
   //MPI_Type_size(MPI_DOUBLE, &s);
-  //printf("System: %li MPI: %d\n", sizeof(double), s);
   //Billy    
     
   if(rank==0){

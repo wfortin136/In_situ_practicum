@@ -30,13 +30,6 @@ field_val* field_val_new(char* name, double* data_set){
     perror("malloc");
     MPI_Abort(MPI_COMM_WORLD, -1); 
   }
-  /*
-  char* n = (char*)malloc(strlen(name)*sizeof(char));
-  if(!n){
-    perror("malloc");
-    //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
-  }
-  */
   f->name = name;
   f->field_str = str_stat_new(data_set);
   return f;
@@ -49,13 +42,6 @@ field_val* field_val_new_empty(char* name){
     perror("malloc");
     MPI_Abort(MPI_COMM_WORLD, -1); 
   }
-  /*
-  char* n = (char*)malloc(strlen(name)*sizeof(char));
-  if(!n){
-    perror("malloc");
-    //MPI_Abort(MPI_COMM_WORLD, -1); SHOULD THIS BE INCLUDED?
-  }
-  */
   f->name = name;
   f->field_str = str_stat_new_g();
   return f;

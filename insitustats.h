@@ -17,9 +17,6 @@ struct var_stats
   double min;
   double max;
   histogram* histo;
-  //int* histo_index;//index values for ranges in histogram
-  //int* histo;//count for index values
-  //int numcols; //number of columns in histogram
 };
 typedef struct var_stats var_stats;
 
