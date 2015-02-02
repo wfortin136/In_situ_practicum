@@ -56,19 +56,16 @@ int main(int argc, char **argv)
   uint64_t start_extents_z, start_extents_y, start_extents_x;
   int block_id_x, block_id_y, block_id_z;
   int i,j,k;
-  int* l_indicies=0; 
- 
-  double t1, t2, t3, t4, t5, t6;
+  int* l_indicies=0;
 
+  double t1, t2, t3, t4, t5, t6;
+ 
   // The buffers/ variables
   // Let's have Pressure, Temperature, Density
   // TODO: Make the num of variables a command line argument
   double* pressure = 0;
   double* temperature = 0;
   double* density = 0;
-
-  //************************
-  //Set ranges for two of 3 dimensions
 
  
   // Initialize MPI
@@ -82,9 +79,6 @@ int main(int argc, char **argv)
   ////////////////////////////
   if(rank == 0){
     
-      printf("Time Resolution: %E sec\n", MPI_Wtick());
-      //1e-9 seconds is a billionth of a sec or nanosecond
-
       ret = parse_args(argc, argv);
       if(ret < 0){
           usage();
@@ -96,7 +90,7 @@ int main(int argc, char **argv)
     
       if(tot_blocks != nprocs){
           printf("Error: number of blocks (%d) doesn't match\
-              number of procs (%d)\n", tot_blocks, nprocs);
+				number of procs (%d)\n", tot_blocks, nprocs);
           MPI_Abort(MPI_COMM_WORLD, -1);
       }
 
@@ -137,21 +131,20 @@ int main(int argc, char **argv)
   block_id_z = start_extents_z / l_z;
   block_id_y = start_extents_y / l_y;
   block_id_x = start_extents_x / l_x;
-
-
+/*
   int m;
   for(m=0; m<nprocs; m++)
   {
     if(rank==m){
       printf("Rank: %d \n", rank);
       printf("id_x: %d, id_y: %d, id_z: %d\n", block_id_x, block_id_y, block_id_z);
-      printf("id_x: %" PRIu64 ", id_y: %" PRIu64 ", id_z: %" PRIu64 "\n", start_extents_x, 
-          start_extents_y, start_extents_z);
+      printf("id_x: %" PRIu64 ", id_y: %" PRIu64 ", id_z: %" PRIu64 "\n", start_extents_x,
+         start_extents_y, start_extents_z);
       fflush(stdout);
     }
     MPI_Barrier(MPI_COMM_WORLD);
   }
-  MPI_Barrier(MPI_COMM_WORLD);
+*/
 
   // Print Info
   if (0 == rank){
@@ -224,31 +217,29 @@ int main(int argc, char **argv)
   //**********************************  
   //Billy
   //Define struct for stats
-  field_val* l_p = field_val_new("pressure", pressure);
-
-  //
-  var_stats* l_pressure_str = str_stat_new(pressure);
-  var_stats* l_temp_str = str_stat_new(temperature);
-  var_stats* l_density_str = str_stat_new(density);
+  field_val* l_pres = field_val_new("Local Pressure", pressure);
+  field_val* l_temp = field_val_new("Local Temperature", temperature);
+  field_val* l_dens = field_val_new("Local Density", density);
   
-  var_stats* g_pressure_str = str_stat_new_g();
-  var_stats* g_temp_str = str_stat_new_g();
-  var_stats* g_density_str = str_stat_new_g();
-/*
-  for(j=0; j<nprocs; j++){
-    MPI_Barrier(MPI_COMM_WORLD);
-    if(rank==j){
-      //MPI_Barrier(MPI_COMM_WORLD); 
-      for(i=0; i<(l_x * l_y *l_z); i++)
-      {
-	printf("Index:%i, Volume:%f, Dataset:%f\n",i, pressure[i],pressure_str->data_set[i]);  
-      }
-    }
-  }
-*/
-  compute_stats(l_pressure_str, l_indicies);
-  compute_stats(l_temp_str, l_indicies);
-  compute_stats(l_density_str, l_indicies);
+  compute_var_stats(l_pres, l_indicies); 
+  compute_var_stats(l_temp, l_indicies);
+  compute_var_stats(l_dens, l_indicies);
+
+  //var_stats* l_pressure_str = str_stat_new(pressure);
+  //var_stats* l_temp_str = str_stat_new(temperature);
+  //var_stats* l_density_str = str_stat_new(density);
+  
+  field_val* g_pres = field_val_new_empty("Global Pressure");
+  field_val* g_temp = field_val_new_empty("Global Temperature");
+  field_val* g_dens = field_val_new_empty("Global Density");
+  
+  //var_stats* g_pressure_str = str_stat_new_g();
+  //var_stats* g_temp_str = str_stat_new_g();
+  //var_stats* g_density_str = str_stat_new_g();
+ 
+  //compute_stats(l_pressure_str, l_indicies);
+  //compute_stats(l_temp_str, l_indicies);
+  //compute_stats(l_density_str, l_indicies);
 
   /*
   print_histo("Pressure", pressure_str->histo);
@@ -268,32 +259,50 @@ int main(int argc, char **argv)
   ////////////////////////////////
   //************************************************
   int s=0;
-
-/*  
+ 
   //MPI_Type_size(MPI_DOUBLE, &s);
   //printf("System: %li MPI: %d\n", sizeof(double), s);
   //Billy    
+    
   if(rank==0){
     printf("**BEFORE**\n");
-    printf("Pressure\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
-        g_pressure_str->mean, g_pressure_str->min, g_pressure_str->max);
-    printf("Density\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
-        g_density_str->mean, g_density_str->min, g_density_str->max);
-    printf("Temperature\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
-        g_temp_str->mean, g_temp_str->min, g_temp_str->max);
+    printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_pres), 
+        *get_mean_ptr(g_pres), *get_min_ptr(g_pres), *get_max_ptr(g_pres));
+    printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_dens), 
+        *get_mean_ptr(g_dens), *get_min_ptr(g_dens), *get_max_ptr(g_dens));
+    printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_temp), 
+        *get_mean_ptr(g_temp), *get_min_ptr(g_temp), *get_max_ptr(g_temp));
   }
-*/
-  //printf("mean: %f \n", pressure_str->mean);
-  //collate_processes(l_pressure_str, g_pressure_str);
-  //collate_processes("max",l_pressure_str);
-  //collate_processes("min",l_pressure_str);
-  
+
   t1=MPI_Wtime();
   
-  MPI_Allreduce(&(l_pressure_str->mean), &(g_pressure_str->mean), 1,MPI_DOUBLE, 
+  MPI_Allreduce(get_mean_ptr(l_pres), get_mean_ptr(g_pres), 1,MPI_DOUBLE, 
       MPI_SUM, MPI_COMM_WORLD);
+  
+  //MPI_Allreduce(&(l_pressure_str->mean), &(g_pressure_str->mean), 1,MPI_DOUBLE, 
+  //    MPI_SUM, MPI_COMM_WORLD);
+  
   t2=MPI_Wtime();
 
+  MPI_Allreduce(get_mean_ptr(l_dens), get_mean_ptr(g_dens), 1,MPI_DOUBLE, 
+      MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(get_mean_ptr(l_temp), get_mean_ptr(g_temp), 1,MPI_DOUBLE, 
+      MPI_SUM, MPI_COMM_WORLD);
+
+  MPI_Allreduce(get_min_ptr(l_pres), get_min_ptr(g_pres), 1,MPI_DOUBLE, 
+      MPI_MIN, MPI_COMM_WORLD);
+  MPI_Allreduce(get_min_ptr(l_dens), get_min_ptr(g_dens), 1,MPI_DOUBLE, 
+      MPI_MIN, MPI_COMM_WORLD);
+  MPI_Allreduce(get_min_ptr(l_temp), get_min_ptr(g_temp), 1,MPI_DOUBLE, 
+      MPI_MIN, MPI_COMM_WORLD);
+  
+  MPI_Allreduce(get_max_ptr(l_pres), get_max_ptr(g_pres), 1,MPI_DOUBLE, 
+      MPI_MAX, MPI_COMM_WORLD);
+  MPI_Allreduce(get_max_ptr(l_dens), get_max_ptr(g_dens), 1,MPI_DOUBLE, 
+      MPI_MAX, MPI_COMM_WORLD);
+  MPI_Allreduce(get_max_ptr(l_temp), get_max_ptr(g_temp), 1,MPI_DOUBLE, 
+      MPI_MAX, MPI_COMM_WORLD);
+/* 
   MPI_Allreduce(&(l_density_str->mean), &(g_density_str->mean), 1,MPI_DOUBLE, 
       MPI_SUM, MPI_COMM_WORLD);
   MPI_Allreduce(&(l_temp_str->mean), &(g_temp_str->mean), 1,MPI_DOUBLE, 
@@ -312,54 +321,80 @@ int main(int argc, char **argv)
       MPI_MAX, MPI_COMM_WORLD);
   MPI_Allreduce(&(l_temp_str->max), &(g_temp_str->max), 1,MPI_DOUBLE, 
       MPI_MAX, MPI_COMM_WORLD);
+*/
   t3=MPI_Wtime();
+
+  *get_mean_ptr(g_pres)/=nprocs;
+  *get_mean_ptr(g_temp)/=nprocs;
+  *get_mean_ptr(g_dens)/=nprocs;
+
+/*
   g_pressure_str->mean/=nprocs;
   g_density_str->mean/=nprocs;
   g_temp_str->mean/=nprocs;
+*/
 
- 
-  compute_histo(l_pressure_str->histo, l_pressure_str->data_set, 
-      g_pressure_str->min, g_pressure_str->max, l_indicies);
-  compute_histo(l_density_str->histo, l_density_str->data_set, 
-      g_density_str->min, g_density_str->max, l_indicies);
-  compute_histo(l_temp_str->histo, l_temp_str->data_set, 
-      g_temp_str->min, g_temp_str->max, l_indicies); 
+//**********************
+//NEED TO UPDATE HISTO INTERFACE
+
+  calc_histogram(l_pres,l_pres, *get_min_ptr(g_pres), *get_max_ptr(g_pres), l_indicies);
+  calc_histogram(l_dens,l_dens, *get_min_ptr(g_dens), *get_max_ptr(g_dens), l_indicies);
+  calc_histogram(l_temp,l_temp, *get_min_ptr(g_temp), *get_max_ptr(g_temp), l_indicies); 
   
   //Need to compute global histogram with local data in order to properly
   //allocate space for MPI_reduce
   //If space becomes an issue, we can limit populating global histo to only
   //process 0. We can then do an MPI_Reduce using local histos instead of global
   //if(rank==0){
-    compute_histo(g_pressure_str->histo, l_pressure_str->data_set, 
-        g_pressure_str->min, g_pressure_str->max, l_indicies);
-    compute_histo(g_density_str->histo, l_density_str->data_set, 
-        g_density_str->min, g_density_str->max, l_indicies);
-    compute_histo(g_temp_str->histo, l_temp_str->data_set, 
-        g_temp_str->min, g_temp_str->max, l_indicies);
+  calc_histogram(g_pres,l_pres, *get_min_ptr(g_pres), *get_max_ptr(g_pres), l_indicies);
+  calc_histogram(g_dens,l_dens, *get_min_ptr(g_dens), *get_max_ptr(g_dens), l_indicies);
+  calc_histogram(g_temp,l_temp, *get_min_ptr(g_temp), *get_max_ptr(g_temp), l_indicies);   
   //}
-  t4=MPI_Wtime();
-  MPI_Allreduce(l_pressure_str->histo->count, g_pressure_str->histo->count, 
-      g_pressure_str->histo->numcols, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+ 
+  t4 = MPI_Wtime();
+  MPI_Allreduce(get_histo_array(l_pres), get_histo_array(g_pres), 
+      get_histo_numcols(g_pres), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  
   t5=MPI_Wtime();
-  MPI_Allreduce(l_temp_str->histo->count, g_temp_str->histo->count, 
-      g_temp_str->histo->numcols, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(l_density_str->histo->count, g_density_str->histo->count, 
-      g_density_str->histo->numcols, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  
+  MPI_Allreduce(get_histo_array(l_dens), get_histo_array(g_dens), 
+      get_histo_numcols(g_dens), MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  MPI_Allreduce(get_histo_array(l_temp), get_histo_array(g_temp), 
+      get_histo_numcols(g_temp), MPI_INT, MPI_SUM, MPI_COMM_WORLD);  
+  
   t6=MPI_Wtime();
 
-  if(rank==0){
-    double time1, time2, time3, time4;
-    time1=t2-t1;
-    time2=(t3-t2)+time1;
-    time3 = t5-t4;
-    time4= (t6-t5)+time3;
-    printf("Single Reduce All: %E\n",time1);
-    printf("Nine Reduce All: %E\n",time2);
-    printf("1 to 9 Scales: %f \n",time2/time1);
-    printf("Single Reduce All Across Array: %E\n", time3);
-    printf("3 Reduce All Across 3 Arrays: %E\n", time4);
-    printf("1 to 3  Scales: %f \n",time4/time3);
-  }
+//**********************
+
+   if(rank==0){
+     double time1, time2, time3, time4;
+     time1=t2-t1;
+     time2=(t3-t2)+time1;
+     time3 = t5-t4;
+     time4= (t6-t5)+time3;
+     printf("Single Reduce All: %E\n",time1);
+     printf("Nine Reduce All: %E\n",time2);
+     printf("1 to 9 Scales: %f \n",time2/time1);
+     printf("Single Reduce All Across Array: %E\n", time3);
+     printf("3 Reduce All Across 3 Arrays: %E\n", time4);
+     printf("1 to 3 Scales: %f \n",time4/time3);
+   }
+ 
+   if(rank==0){
+     printf("**AFTER**\n");
+     printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_pres), 
+        *get_mean_ptr(g_pres), *get_min_ptr(g_pres), *get_max_ptr(g_pres));
+     printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_dens), 
+        *get_mean_ptr(g_dens), *get_min_ptr(g_dens), *get_max_ptr(g_dens));
+     printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_temp), 
+        *get_mean_ptr(g_temp), *get_min_ptr(g_temp), *get_max_ptr(g_temp));
+    }
+
+
+    two_d_slices* x_pres = create_2d_slices("X Pressure", pressure, l_indicies, 0);
+    two_d_slices* y_pres = create_2d_slices("Y Pressure", pressure, l_indicies, 1);
+    two_d_slices* z_pres = create_2d_slices("Z Pressure", pressure, l_indicies, 2);
+
 /*
   if(rank==0){
     printf("**AFTER**\n");
@@ -369,12 +404,11 @@ int main(int argc, char **argv)
         g_density_str->mean, g_density_str->min, g_density_str->max);
     printf("Temperature\n...Glebal Mean:%f\n...Global Min:%f\n...Global Max:%f\n", 
         g_temp_str->mean, g_temp_str->min, g_temp_str->max);
-    print_histo("Pressure", g_pressure_str->histo);
-    print_histo("Temperature", g_temp_str->histo);
-    print_histo("Density", g_density_str->histo);
+    //print_histo("Pressure", g_pressure_str->histo);
+    //print_histo("Temperature", g_temp_str->histo);
+    //print_histo("Density", g_density_str->histo);
   }
-*/
-
+*/  
   //
   //********************************************************
   
@@ -384,13 +418,25 @@ int main(int argc, char **argv)
 
   //***************************************
   //Billy
-  free_field_val(l_p);
+  free_field_val(l_pres);
+  free_field_val(l_temp); 
+  free_field_val(l_dens); 
+  free_field_val(g_pres); 
+  free_field_val(g_temp); 
+  free_field_val(g_dens);
+
+
+  free_2d_slices(x_pres);
+  free_2d_slices(y_pres);
+  free_2d_slices(z_pres);
+/*  
   free_var_struct(l_pressure_str);
   free_var_struct(l_temp_str);
   free_var_struct(l_density_str);
   free_var_struct(g_pressure_str);
   free_var_struct(g_temp_str);
   free_var_struct(g_density_str);
+*/
   free_indicies(l_indicies);
       
   //
