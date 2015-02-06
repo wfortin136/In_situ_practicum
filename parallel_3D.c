@@ -400,8 +400,8 @@ int main(int argc, char **argv)
   MPI_Reduce(&end_t, &gend_t, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   MPI_Reduce(&hist_t_1, &ghist_t_1, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&hist_t_2, &ghist_t_2, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&hist_t_3, &ghist_t_3, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&hist_t_2, &ghist_t_2, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&hist_t_3, &ghist_t_3, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   //**********************
    if(rank==0){
