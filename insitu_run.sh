@@ -46,7 +46,7 @@ do
       let "count+=1"
       echo "******* RUN:$count: **************" >> $out_file
       #echo "******* RUN:$count: **************" | sudo tee -a $out_file
-      echo "Nodes:$nodes"
+      echo "Nodes:$nodes" >> $out_file
       echo "Processors:$num:" >> $out_file
       #echo "***** Processors:$num: *********" | sudo tee -a $out_file
       #echo "$run_command $num_proc $run_file $g_param $l_param | tee /A $out_file"
