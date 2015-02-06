@@ -58,8 +58,9 @@ int main(int argc, char **argv)
   int i,j,k;
   int* l_indicies=0;
 
-  double t1, t2, t3, t4, t5, t6;
- 
+  double begin_t, end_t, t1, t2, t3, t4, t5, t6;
+  double hist_t_1, hist_t_2, hist_t_3, hist_t_4, hist_t_5, hist_t_6;
+  
   // The buffers/ variables
   // Let's have Pressure, Temperature, Density
   // TODO: Make the num of variables a command line argument
@@ -131,6 +132,7 @@ int main(int argc, char **argv)
   block_id_z = start_extents_z / l_z;
   block_id_y = start_extents_y / l_y;
   block_id_x = start_extents_x / l_x;
+
 /*
   int m;
   for(m=0; m<nprocs; m++)
@@ -143,14 +145,15 @@ int main(int argc, char **argv)
       fflush(stdout);
     }
     MPI_Barrier(MPI_COMM_WORLD);
+
+      //fflush(stdout);
   }
 */
-
   // Print Info
   if (0 == rank){
-    printf("Global Dimensions %dX%dX%d: Local Dimensions %dX%dX%d \n", \
-          g_z, g_y, g_x, l_z, l_y, l_x);
-    printf("Total Blocks are %dX%dX%d \n", tot_blocks_z, tot_blocks_y, tot_blocks_x);
+    printf("Global Dimensions:  %dX%dX%d\n", g_z, g_y, g_x);
+    printf("Local Dimensions:   %dX%dX%d \n", l_z, l_y, l_x);
+    printf("Total Blocks:       %dX%dX%d \n", tot_blocks_z, tot_blocks_y, tot_blocks_x);
   }
 
   //////////////////////////////////
@@ -217,6 +220,13 @@ int main(int argc, char **argv)
   //**********************************  
   //Billy
   //Define struct for stats
+  
+  //Test variables for calc histogram for single rank
+  field_val* g_pres_2 = field_val_new_empty("Global Pressure");
+  field_val* g_temp_2 = field_val_new_empty("Global Temperature");
+  field_val* g_dens_2 = field_val_new_empty("Global Density");
+
+  begin_t=MPI_Wtime();
   field_val* l_pres = field_val_new("Local Pressure", pressure);
   field_val* l_temp = field_val_new("Local Temperature", temperature);
   field_val* l_dens = field_val_new("Local Density", density);
@@ -262,7 +272,7 @@ int main(int argc, char **argv)
  
   //MPI_Type_size(MPI_DOUBLE, &s);
   //Billy    
-    
+/*    
   if(rank==0){
     printf("**BEFORE**\n");
     printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_pres), 
@@ -272,7 +282,7 @@ int main(int argc, char **argv)
     printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_temp), 
         *get_mean_ptr(g_temp), *get_min_ptr(g_temp), *get_max_ptr(g_temp));
   }
-
+*/
   t1=MPI_Wtime();
   
   MPI_Allreduce(get_mean_ptr(l_pres), get_mean_ptr(g_pres), 1,MPI_DOUBLE, 
@@ -345,9 +355,12 @@ int main(int argc, char **argv)
   //If space becomes an issue, we can limit populating global histo to only
   //process 0. We can then do an MPI_Reduce using local histos instead of global
   //if(rank==0){
+  hist_t_1= MPI_Wtime();
   calc_histogram(g_pres,l_pres, *get_min_ptr(g_pres), *get_max_ptr(g_pres), l_indicies);
+  hist_t_2= MPI_Wtime();
   calc_histogram(g_dens,l_dens, *get_min_ptr(g_dens), *get_max_ptr(g_dens), l_indicies);
   calc_histogram(g_temp,l_temp, *get_min_ptr(g_temp), *get_max_ptr(g_temp), l_indicies);   
+  hist_t_3= MPI_Wtime();
   //}
  
   t4 = MPI_Wtime();
@@ -363,22 +376,60 @@ int main(int argc, char **argv)
   
   t6=MPI_Wtime();
 
-//**********************
+  end_t=MPI_Wtime();
 
-   if(rank==0){
-     double time1, time2, time3, time4;
-     time1=t2-t1;
-     time2=(t3-t2)+time1;
-     time3 = t5-t4;
-     time4= (t6-t5)+time3;
-     printf("Single Reduce All: %E\n",time1);
-     printf("Nine Reduce All: %E\n",time2);
-     printf("1 to 9 Scales: %f \n",time2/time1);
-     printf("Single Reduce All Across Array: %E\n", time3);
-     printf("3 Reduce All Across 3 Arrays: %E\n", time4);
-     printf("1 to 3 Scales: %f \n",time4/time3);
-   }
+  if(rank==0){
+    hist_t_4= MPI_Wtime();
+    calc_histogram(g_pres_2,l_pres, *get_min_ptr(g_pres), *get_max_ptr(g_pres), l_indicies);
+    hist_t_5= MPI_Wtime();
+    calc_histogram(g_dens_2,l_dens, *get_min_ptr(g_dens), *get_max_ptr(g_dens), l_indicies);
+    calc_histogram(g_temp_2,l_temp, *get_min_ptr(g_temp), *get_max_ptr(g_temp), l_indicies);
+    hist_t_6= MPI_Wtime();
+  }
  
+  double gbegin_t, gend_t, gt1, gt2, gt3, gt4, gt5, gt6;
+  double ghist_t_1, ghist_t_2, ghist_t_3;
+
+  MPI_Reduce(&begin_t, &gbegin_t, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&t1, &gt1, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&t2, &gt2, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&t3, &gt3, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&t4, &gt4, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&t5, &gt5, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&t6, &gt6, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&end_t, &gend_t, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+
+  MPI_Reduce(&hist_t_1, &ghist_t_1, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&hist_t_2, &ghist_t_2, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&hist_t_3, &ghist_t_3, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+
+  //**********************
+   if(rank==0){
+     double time1, time2, time3, time4, time5, time6, time7, time8;
+     time1=gt2-gt1;
+     time2=gt3-gt1;
+     //time2=(t3-t2)+time1;
+     time3 = gt5-gt4;
+     time4 = gt6-gt4;
+     //time4= (t6-t5)+time3;
+     time5 = ghist_t_2-ghist_t_1;
+     time6 = ghist_t_3-ghist_t_1;
+     time7 = hist_t_5-hist_t_4;
+     time8 = hist_t_6-hist_t_4;
+     
+     printf("Reduce All-1:       %E\n",time1);
+     printf("Reduce All-9:       %E\n",time2);
+     printf("Scale 1-9:          %f\n",time2/time1);
+     printf("Reduce All Array-1: %E\n", time3);
+     printf("Reduce All Array-3: %E\n", time4);
+     printf("Scale 1-3:          %f\n",time4/time3);
+     printf("Histo-1 (R_all):    %E\n",time5);
+     printf("Histo-3 (R_all):    %E\n",time6);
+     printf("Histo-1 (R_single): %E\n",time7);
+     printf("Histo-3 (R_single): %E\n",time8);
+     printf("Total Calc Time:    %E\n",end_t-begin_t);
+   }
+/* 
    if(rank==0){
      printf("**AFTER**\n");
      printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_pres), 
@@ -388,7 +439,7 @@ int main(int argc, char **argv)
      printf("%s\n...Mean:%f\n...Min:%f\n...Max:%f\n", get_var_name(g_temp), 
         *get_mean_ptr(g_temp), *get_min_ptr(g_temp), *get_max_ptr(g_temp));
     }
-
+*/
 
     two_d_slices* x_pres = create_2d_slices("X Pressure", pressure, l_indicies, 0);
     two_d_slices* y_pres = create_2d_slices("Y Pressure", pressure, l_indicies, 1);
@@ -454,7 +505,7 @@ int main(int argc, char **argv)
     free(density);
     density = 0;
   }
-  fflush(stdout);
+  //fflush(stdout);
   //
   //printf("test1\n");
   //MPI_Barrier(MPI_COMM_WORLD);

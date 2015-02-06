@@ -1,0 +1,8 @@
+Global Dimensions 16X16X16: Local Dimensions 16X16X16 
+Total Blocks are 1X1X1 
+Single Reduce All: 1.049042E-05
+Nine Reduce All: 1.430511E-05
+1 to 9 Scales: 1.363636 
+Single Reduce All Across Array: 4.768372E-07
+3 Reduce All Across 3 Arrays: 7.152557E-07
+1 to 3 Scales: 1.500000 
