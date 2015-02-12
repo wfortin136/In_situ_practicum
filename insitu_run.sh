@@ -3,8 +3,10 @@
 # Run batch processes for insitu_stats library
 
 
-global_size=( 4 8 16 32 64 128 256)
-local_size=( 4 8 16 32 64 128 256)
+global_size=( 4 8 16 32)
+# 64 128 256)
+local_size=( 4 8 16 32)
+# 64 128 256)
 mode=( 64 32 16 8 4 2 1 )
 
 #run_command="mpiexec"
@@ -31,16 +33,16 @@ do
       let "num= $div * $div * $div"
       #num_proc="-n $num"
       num_proc="--np $num"
-      
-      for k in "${mode[@]}"
-      do
-        let "p= $num % $k"
-        echo "np:$num k:$k p:$p"
-        if [ $p == 0 ]; then 
-          per_node="-p $k"
-          break
-        fi
-      done
+      per_node="-p $k"
+      #for k in "${mode[@]}"
+      #do
+      #  let "p= $num % $k"
+      #  echo "np:$num k:$k p:$p"
+      #  if [ $p == 0 ]; then 
+      #    per_node="-p $k"
+      #    break
+      #  fi
+      #done
       
       let "count+=1"
       echo "******* RUN:$count: **************" >> $out_file
