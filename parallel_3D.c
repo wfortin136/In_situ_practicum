@@ -153,7 +153,7 @@ int main(int argc, char **argv)
   if (0 == rank){
  
     if(argc>5) printf("%s ", argv[5]);
-  
+    //test 
     printf("%d ", g_z);
     //printf("%dX%dX%d ", g_z, g_y, g_x);
     printf("%d ", l_z);
