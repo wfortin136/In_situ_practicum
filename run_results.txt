@@ -1,56 +1,357 @@
 ******* RUN:1: **************
-***** Processors:1: *********
+Nodes:1
+Processors:1:
+Global Dimensions:  4X4X4
+Local Dimensions:   4X4X4 
+Total Blocks:       1X1X1 
+Reduce All-1:       2.523188E-05
+Reduce All-9:       4.858187E-05
+Scale 1-9:          1.925417
+Reduce All Array-1: 5.000625E-06
+Reduce All Array-3: 1.014687E-05
+Scale 1-3:          2.029121
+Histo-1 (R_all):    4.818750E-05
+Histo-3 (R_all):    1.449069E-04
+Histo-1 (R_single): 4.900813E-05
+Histo-3 (R_single): 1.463381E-04
+Total Calc Time:    3.896931E-04
 ******* RUN:2: **************
-***** Processors:8: *********
+Nodes:1
+Processors:8:
+Global Dimensions:  8X8X8
+Local Dimensions:   4X4X4 
+Total Blocks:       2X2X2 
+Reduce All-1:       1.299224E-03
+Reduce All-9:       1.352729E-03
+Scale 1-9:          1.041182
+Reduce All Array-1: 4.392375E-05
+Reduce All Array-3: 5.682438E-05
+Scale 1-3:          1.293705
+Histo-1 (R_all):    6.740375E-05
+Histo-3 (R_all):    1.693531E-04
+Histo-1 (R_single): 4.778063E-05
+Histo-3 (R_single): 1.390850E-04
+Total Calc Time:    4.477719E-04
 ******* RUN:3: **************
-***** Processors:64: *********
+Nodes:1
+Processors:64:
+Global Dimensions:  16X16X16
+Local Dimensions:   4X4X4 
+Total Blocks:       4X4X4 
+Reduce All-1:       1.342616E-03
+Reduce All-9:       1.473128E-03
+Scale 1-9:          1.097207
+Reduce All Array-1: 7.913250E-05
+Reduce All Array-3: 1.195869E-04
+Scale 1-3:          1.511223
+Histo-1 (R_all):    9.342625E-05
+Histo-3 (R_all):    2.230594E-04
+Histo-1 (R_single): 6.264625E-05
+Histo-3 (R_single): 1.887175E-04
+Total Calc Time:    6.809962E-04
 ******* RUN:4: **************
-***** Processors:512: *********
+Nodes:8
+Processors:512:
+Global Dimensions:  32X32X32
+Local Dimensions:   4X4X4 
+Total Blocks:       8X8X8 
+Reduce All-1:       1.347244E-03
+Reduce All-9:       1.482485E-03
+Scale 1-9:          1.100384
+Reduce All Array-1: 9.339312E-05
+Reduce All Array-3: 1.346381E-04
+Scale 1-3:          1.441628
+Histo-1 (R_all):    1.007888E-04
+Histo-3 (R_all):    2.323563E-04
+Histo-1 (R_single): 6.137063E-05
+Histo-3 (R_single): 1.846469E-04
+Total Calc Time:    6.946837E-04
 ******* RUN:5: **************
-***** Processors:4096: *********
+Nodes:64
+Processors:4096:
+Global Dimensions:  64X64X64
+Local Dimensions:   4X4X4 
+Total Blocks:       16X16X16 
+Reduce All-1:       1.332456E-03
+Reduce All-9:       1.473951E-03
+Scale 1-9:          1.106191
+Reduce All Array-1: 9.665937E-05
+Reduce All Array-3: 1.399075E-04
+Scale 1-3:          1.447428
+Histo-1 (R_all):    1.028012E-04
+Histo-3 (R_all):    2.361056E-04
+Histo-1 (R_single): 6.260812E-05
+Histo-3 (R_single): 1.865994E-04
+Total Calc Time:    7.102444E-04
 ******* RUN:6: **************
-***** Processors:32768: *********
+Nodes:512
+Processors:32768:
+Global Dimensions:  128X128X128
+Local Dimensions:   4X4X4 
+Total Blocks:       32X32X32 
+Reduce All-1:       1.427440E-03
+Reduce All-9:       1.568862E-03
+Scale 1-9:          1.099074
+Reduce All Array-1: 9.592688E-05
+Reduce All Array-3: 1.385131E-04
+Scale 1-3:          1.443945
+Histo-1 (R_all):    1.024344E-04
+Histo-3 (R_all):    2.359663E-04
+Histo-1 (R_single): 6.354313E-05
+Histo-3 (R_single): 1.880081E-04
+Total Calc Time:    7.088231E-04
 ******* RUN:7: **************
-***** Processors:262144: *********
+Nodes:1
+Processors:1:
+Global Dimensions:  8X8X8
+Local Dimensions:   8X8X8 
+Total Blocks:       1X1X1 
+Reduce All-1:       2.555813E-05
+Reduce All-9:       4.899813E-05
+Scale 1-9:          1.917125
+Reduce All Array-1: 6.558125E-06
+Reduce All Array-3: 1.196813E-05
+Scale 1-3:          1.824931
+Histo-1 (R_all):    3.663669E-04
+Histo-3 (R_all):    1.098903E-03
+Histo-1 (R_single): 3.681213E-04
+Histo-3 (R_single): 1.101061E-03
+Total Calc Time:    2.415499E-03
 ******* RUN:8: **************
-***** Processors:1: *********
+Nodes:1
+Processors:8:
+Global Dimensions:  16X16X16
+Local Dimensions:   8X8X8 
+Total Blocks:       2X2X2 
+Reduce All-1:       1.303089E-03
+Reduce All-9:       1.356395E-03
+Scale 1-9:          1.040908
+Reduce All Array-1: 2.769656E-04
+Reduce All Array-3: 2.914088E-04
+Scale 1-3:          1.052148
+Histo-1 (R_all):    5.198281E-04
+Histo-3 (R_all):    1.296534E-03
+Histo-1 (R_single): 3.476206E-04
+Histo-3 (R_single): 1.036095E-03
+Total Calc Time:    2.590116E-03
 ******* RUN:9: **************
-***** Processors:8: *********
+Nodes:1
+Processors:64:
+Global Dimensions:  32X32X32
+Local Dimensions:   8X8X8 
+Total Blocks:       4X4X4 
+Reduce All-1:       1.309113E-03
+Reduce All-9:       1.441354E-03
+Scale 1-9:          1.101015
+Reduce All Array-1: 4.419506E-04
+Reduce All Array-3: 4.830350E-04
+Scale 1-3:          1.092961
+Histo-1 (R_all):    6.919081E-04
+Histo-3 (R_all):    1.661261E-03
+Histo-1 (R_single): 4.498475E-04
+Histo-3 (R_single): 1.284976E-03
+Total Calc Time:    3.338485E-03
 ******* RUN:10: **************
-***** Processors:64: *********
+Nodes:8
+Processors:512:
+Global Dimensions:  64X64X64
+Local Dimensions:   8X8X8 
+Total Blocks:       8X8X8 
+Reduce All-1:       1.313492E-03
+Reduce All-9:       1.447699E-03
+Scale 1-9:          1.102176
+Reduce All Array-1: 5.555581E-04
+Reduce All Array-3: 5.964400E-04
+Scale 1-3:          1.073587
+Histo-1 (R_all):    7.576687E-04
+Histo-3 (R_all):    1.744709E-03
+Histo-1 (R_single): 4.292663E-04
+Histo-3 (R_single): 1.230722E-03
+Total Calc Time:    3.393098E-03
 ******* RUN:11: **************
-***** Processors:512: *********
+Nodes:64
+Processors:4096:
+Global Dimensions:  128X128X128
+Local Dimensions:   8X8X8 
+Total Blocks:       16X16X16 
+Reduce All-1:       1.327549E-03
+Reduce All-9:       1.469317E-03
+Scale 1-9:          1.106789
+Reduce All Array-1: 5.600531E-04
+Reduce All Array-3: 6.022787E-04
+Scale 1-3:          1.075396
+Histo-1 (R_all):    7.559000E-04
+Histo-3 (R_all):    1.749963E-03
+Histo-1 (R_single): 4.333256E-04
+Histo-3 (R_single): 1.252722E-03
+Total Calc Time:    3.415734E-03
 ******* RUN:12: **************
-***** Processors:4096: *********
+Nodes:1
+Processors:1:
+Global Dimensions:  16X16X16
+Local Dimensions:   16X16X16 
+Total Blocks:       1X1X1 
+Reduce All-1:       2.539375E-05
+Reduce All-9:       4.932125E-05
+Scale 1-9:          1.942259
+Reduce All Array-1: 6.753750E-06
+Reduce All Array-3: 1.230625E-05
+Scale 1-3:          1.822136
+Histo-1 (R_all):    2.907681E-03
+Histo-3 (R_all):    8.722685E-03
+Histo-1 (R_single): 2.908654E-03
+Histo-3 (R_single): 8.723762E-03
+Total Calc Time:    1.857930E-02
 ******* RUN:13: **************
-***** Processors:32768: *********
+Nodes:1
+Processors:8:
+Global Dimensions:  32X32X32
+Local Dimensions:   16X16X16 
+Total Blocks:       2X2X2 
+Reduce All-1:       1.291556E-03
+Reduce All-9:       1.344722E-03
+Scale 1-9:          1.041164
+Reduce All Array-1: 2.112866E-03
+Reduce All Array-3: 2.127241E-03
+Scale 1-3:          1.006804
+Histo-1 (R_all):    4.130869E-03
+Histo-3 (R_all):    1.029542E-02
+Histo-1 (R_single): 2.734472E-03
+Histo-3 (R_single): 8.200201E-03
+Total Calc Time:    1.967214E-02
 ******* RUN:14: **************
-***** Processors:1: *********
+Nodes:1
+Processors:64:
+Global Dimensions:  64X64X64
+Local Dimensions:   16X16X16 
+Total Blocks:       4X4X4 
+Reduce All-1:       1.192742E-03
+Reduce All-9:       1.323372E-03
+Scale 1-9:          1.109521
+Reduce All Array-1: 3.355401E-03
+Reduce All Array-3: 3.395512E-03
+Scale 1-3:          1.011954
+Histo-1 (R_all):    5.488667E-03
+Histo-3 (R_all):    1.316553E-02
+Histo-1 (R_single): 3.405082E-03
+Histo-3 (R_single): 9.989431E-03
+Total Calc Time:    2.455605E-02
 ******* RUN:15: **************
-***** Processors:8: *********
+Nodes:8
+Processors:512:
+Global Dimensions:  128X128X128
+Local Dimensions:   16X16X16 
+Total Blocks:       8X8X8 
+Reduce All-1:       1.173088E-03
+Reduce All-9:       1.307509E-03
+Scale 1-9:          1.114587
+Reduce All Array-1: 4.194443E-03
+Reduce All Array-3: 4.235735E-03
+Scale 1-3:          1.009844
+Histo-1 (R_all):    6.034865E-03
+Histo-3 (R_all):    1.376767E-02
+Histo-1 (R_single): 3.177393E-03
+Histo-3 (R_single): 9.496564E-03
+Total Calc Time:    2.491498E-02
 ******* RUN:16: **************
-***** Processors:64: *********
+Nodes:1
+Processors:1:
+Global Dimensions:  32X32X32
+Local Dimensions:   32X32X32 
+Total Blocks:       1X1X1 
+Reduce All-1:       2.532500E-05
+Reduce All-9:       4.907250E-05
+Scale 1-9:          1.937710
+Reduce All Array-1: 6.730000E-06
+Reduce All Array-3: 1.227875E-05
+Scale 1-3:          1.824480
+Histo-1 (R_all):    2.322909E-02
+Histo-3 (R_all):    6.968690E-02
+Histo-1 (R_single): 2.323006E-02
+Histo-3 (R_single): 6.968798E-02
+Total Calc Time:    1.478322E-01
 ******* RUN:17: **************
-***** Processors:512: *********
+Nodes:1
+Processors:8:
+Global Dimensions:  64X64X64
+Local Dimensions:   32X32X32 
+Total Blocks:       2X2X2 
+Reduce All-1:       1.309568E-03
+Reduce All-9:       1.363104E-03
+Scale 1-9:          1.040881
+Reduce All Array-1: 1.678985E-02
+Reduce All Array-3: 1.680432E-02
+Scale 1-3:          1.000862
+Histo-1 (R_all):    3.301362E-02
+Histo-3 (R_all):    8.226699E-02
+Histo-1 (R_single): 2.183352E-02
+Histo-3 (R_single): 6.549597E-02
+Total Calc Time:    1.562647E-01
 ******* RUN:18: **************
-***** Processors:4096: *********
+Nodes:1
+Processors:64:
+Global Dimensions:  128X128X128
+Local Dimensions:   32X32X32 
+Total Blocks:       4X4X4 
+Reduce All-1:       1.224933E-03
+Reduce All-9:       1.353131E-03
+Scale 1-9:          1.104658
+Reduce All Array-1: 2.663387E-02
+Reduce All Array-3: 2.667647E-02
+Scale 1-3:          1.001599
+Histo-1 (R_all):    4.387325E-02
+Histo-3 (R_all):    1.052005E-01
+Histo-1 (R_single): 2.711982E-02
+Histo-3 (R_single): 8.001526E-02
+Total Calc Time:    1.940792E-01
 ******* RUN:19: **************
-***** Processors:1: *********
+Nodes:1
+Processors:1:
+Global Dimensions:  64X64X64
+Local Dimensions:   64X64X64 
+Total Blocks:       1X1X1 
+Reduce All-1:       2.513625E-05
+Reduce All-9:       4.903750E-05
+Scale 1-9:          1.950868
+Reduce All Array-1: 6.716250E-06
+Reduce All Array-3: 1.226875E-05
+Scale 1-3:          1.826726
+Histo-1 (R_all):    1.857996E-01
+Histo-3 (R_all):    5.573985E-01
+Histo-1 (R_single): 1.858007E-01
+Histo-3 (R_single): 5.573998E-01
+Total Calc Time:    1.181855E+00
 ******* RUN:20: **************
-***** Processors:8: *********
+Nodes:1
+Processors:8:
+Global Dimensions:  128X128X128
+Local Dimensions:   64X64X64 
+Total Blocks:       2X2X2 
+Reduce All-1:       1.467319E-03
+Reduce All-9:       1.521011E-03
+Scale 1-9:          1.036591
+Reduce All Array-1: 1.342024E-01
+Reduce All Array-3: 1.342191E-01
+Scale 1-3:          1.000125
+Histo-1 (R_all):    2.640807E-01
+Histo-3 (R_all):    6.580625E-01
+Histo-1 (R_single): 1.746280E-01
+Histo-3 (R_single): 5.238638E-01
+Total Calc Time:    1.249087E+00
 ******* RUN:21: **************
-***** Processors:64: *********
-******* RUN:22: **************
-***** Processors:512: *********
-******* RUN:23: **************
-***** Processors:1: *********
-******* RUN:24: **************
-***** Processors:8: *********
-******* RUN:25: **************
-***** Processors:64: *********
-******* RUN:26: **************
-***** Processors:1: *********
-******* RUN:27: **************
-***** Processors:8: *********
-******* RUN:28: **************
-***** Processors:1: *********
+Nodes:1
+Processors:1:
+Global Dimensions:  128X128X128
+Local Dimensions:   128X128X128 
+Total Blocks:       1X1X1 
+Reduce All-1:       3.032500E-05
+Reduce All-9:       5.497125E-05
+Scale 1-9:          1.812737
+Reduce All Array-1: 1.991625E-05
+Reduce All Array-3: 2.567875E-05
+Scale 1-3:          1.289337
+Histo-1 (R_all):    1.486467E+00
+Histo-3 (R_all):    4.459418E+00
+Histo-1 (R_single): 1.486369E+00
+Histo-3 (R_single): 4.459297E+00
+Total Calc Time:    9.454768E+00

@@ -151,9 +151,19 @@ int main(int argc, char **argv)
 */
   // Print Info
   if (0 == rank){
+ 
+    if(argc>5) printf("%s ", argv[5]);
+  
+    printf("%d ", g_z);
+    //printf("%dX%dX%d ", g_z, g_y, g_x);
+    printf("%d ", l_z);
+    //printf("%dX%dX%d ", l_z, l_y, l_x);
+    printf("%d ", tot_blocks_z* tot_blocks_y* tot_blocks_x);
+    /*
     printf("Global Dimensions:  %dX%dX%d\n", g_z, g_y, g_x);
     printf("Local Dimensions:   %dX%dX%d \n", l_z, l_y, l_x);
-    printf("Total Blocks:       %dX%dX%d \n", tot_blocks_z, tot_blocks_y, tot_blocks_x);
+    printf("Total Blocks:       %dX%dX%d\n", tot_blocks_z* tot_blocks_y* tot_blocks_x);
+    */
   }
 
   //////////////////////////////////
@@ -387,47 +397,58 @@ int main(int argc, char **argv)
     hist_t_6= MPI_Wtime();
   }
  
-  double gbegin_t, gend_t, gt1, gt2, gt3, gt4, gt5, gt6;
-  double ghist_t_1, ghist_t_2, ghist_t_3;
+  double gtime1, gtime2, gtime3, gtime4, gtime5, gtime6, gtime7, gtime8, gruntime;
+  double time1, time2, time3, time4, time5, time6, time7, time8, runtime;
 
-  MPI_Reduce(&begin_t, &gbegin_t, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&t1, &gt1, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&t2, &gt2, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&t3, &gt3, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&t4, &gt4, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&t5, &gt5, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&t6, &gt6, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&end_t, &gend_t, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  time1=t2-t1;
+  time2=t3-t1;
+  //time2=(t3-t2)+time1;
+  time3 = t5-t4;
+  time4 = t6-t4;
 
-  MPI_Reduce(&hist_t_1, &ghist_t_1, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&hist_t_2, &ghist_t_2, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&hist_t_3, &ghist_t_3, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  //time4= (t6-t5)+time3;
+  time5 = hist_t_2-hist_t_1;
+  time6 = hist_t_3-hist_t_1;
+  runtime = end_t-begin_t;
+  
+  MPI_Reduce(&runtime, &gruntime, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&time1, &gtime1, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&time2, &gtime2, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&time3, &gtime3, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&time4, &gtime4, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&time5, &gtime5, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&time6, &gtime6, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   //**********************
    if(rank==0){
-     double time1, time2, time3, time4, time5, time6, time7, time8;
-     time1=gt2-gt1;
-     time2=gt3-gt1;
-     //time2=(t3-t2)+time1;
-     time3 = gt5-gt4;
-     time4 = gt6-gt4;
-     //time4= (t6-t5)+time3;
-     time5 = ghist_t_2-ghist_t_1;
-     time6 = ghist_t_3-ghist_t_1;
      time7 = hist_t_5-hist_t_4;
      time8 = hist_t_6-hist_t_4;
      
-     printf("Reduce All-1:       %E\n",time1);
-     printf("Reduce All-9:       %E\n",time2);
-     printf("Scale 1-9:          %f\n",time2/time1);
-     printf("Reduce All Array-1: %E\n", time3);
-     printf("Reduce All Array-3: %E\n", time4);
-     printf("Scale 1-3:          %f\n",time4/time3);
-     printf("Histo-1 (R_all):    %E\n",time5);
-     printf("Histo-3 (R_all):    %E\n",time6);
-     printf("Histo-1 (R_single): %E\n",time7);
-     printf("Histo-3 (R_single): %E\n",time8);
-     printf("Total Calc Time:    %E\n",end_t-begin_t);
+     printf("%*E ",10, gtime1);
+     printf("%*E ",10, gtime2);
+     printf("%*E ",10, gtime2/gtime1);
+     printf("%*E ",10, gtime3);
+     printf("%*E ",10, gtime4/gtime3);
+     printf("%*E ",10, gtime5);
+     printf("%*E ",10, gtime5);
+     printf("%*E ",10, gtime6);
+     printf("%*E ",10, time7);
+     printf("%*E ",10, time8);
+     printf("%*E ",10, gruntime);
+     printf("\n");
+     /*
+     printf("Reduce All-1:       %E\n",gtime1);
+     printf("Reduce All-9:       %E\n",gtime2);
+     printf("Scale 1-9:          %f\n",gtime2/gtime1);
+     printf("Reduce All Array-1: %E\n",gtime3);
+     printf("Reduce All Array-3: %E\n",gtime4);
+     printf("Scale 1-3:          %f\n",gtime4/gtime3);
+     printf("Histo-1 (R_all):    %E\n",gtime5);
+     printf("Histo-3 (R_all):    %E\n",gtime6);
+     printf("Histo-1 (R_single): %E\n",gtime7);
+     printf("Histo-3 (R_single): %E\n",gtime8);
+     printf("Total Calc Time:    %E\n",gruntime);
+     */
    }
 /* 
    if(rank==0){
