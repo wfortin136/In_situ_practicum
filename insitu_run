@@ -3,8 +3,8 @@
 # Run batch processes for insitu_stats library
 
 
-global_size=( 4 8 16 32 64 128 256)
-local_size=( 4 8 16 32 64 128 256)
+global_size=( 4 8 16 32 64)
+local_size=( 4 8 16 32 64)
 
 
 run_command="mpiexec"
@@ -30,13 +30,13 @@ do
       num_proc="-n $num"
       let "count+=1"
       #echo "*******RUN $count **********" >> $out_file
-      echo "******* RUN:$count: **************" | sudo tee -a $out_file
+      #echo "******* RUN:$count: **************" | sudo tee -a $out_file
       #echo "*****Processors: $num*******" >> $out_file
-      echo "***** Processors:$num: *********" | sudo tee -a $out_file
+      #echo "***** Processors:$num: *********" | sudo tee -a $out_file
       #echo "$run_command $num_proc $run_file $g_param $l_param | tee /A $out_file"
 
       #$run_command $num_proc $run_file $g_param $l_param >> $out_file
-      $run_command $num_proc $run_file $g_param $l_param | sudo tee -a $out_file
+      $run_command $num_proc $run_file $g_param $l_param $num | sudo tee -a $out_file
     fi
   done
 done
