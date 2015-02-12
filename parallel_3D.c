@@ -387,21 +387,23 @@ int main(int argc, char **argv)
     hist_t_6= MPI_Wtime();
   }
  
-  double gbegin_t, gend_t, gt1, gt2, gt3, gt4, gt5, gt6;
+  double runtime, gruntime, gbegin_t, gend_t, gt1, gt2, gt3, gt4, gt5, gt6;
   double ghist_t_1, ghist_t_2, ghist_t_3;
 
-  MPI_Reduce(&begin_t, &gbegin_t, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  runtime = end_t-begin_t;
+
+  //MPI_Reduce(&begin_t, &gbegin_t, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
   MPI_Reduce(&t1, &gt1, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
   MPI_Reduce(&t2, &gt2, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
   MPI_Reduce(&t3, &gt3, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
   MPI_Reduce(&t4, &gt4, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
   MPI_Reduce(&t5, &gt5, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
   MPI_Reduce(&t6, &gt6, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&end_t, &gend_t, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&runtime, &gruntime, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   MPI_Reduce(&hist_t_1, &ghist_t_1, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&hist_t_2, &ghist_t_2, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
-  MPI_Reduce(&hist_t_3, &ghist_t_3, 1,MPI_DOUBLE, MPI_MIN, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&hist_t_2, &ghist_t_2, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&hist_t_3, &ghist_t_3, 1,MPI_DOUBLE, MPI_MAX, 0, MPI_COMM_WORLD);
 
   //**********************
    if(rank==0){
@@ -427,7 +429,7 @@ int main(int argc, char **argv)
      printf("Histo-3 (R_all):    %E\n",time6);
      printf("Histo-1 (R_single): %E\n",time7);
      printf("Histo-3 (R_single): %E\n",time8);
-     printf("Total Calc Time:    %E\n",end_t-begin_t);
+     printf("Total Calc Time:    %E\n",gruntime);
    }
 /* 
    if(rank==0){
