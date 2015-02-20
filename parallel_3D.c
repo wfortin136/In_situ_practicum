@@ -428,8 +428,8 @@ int main(int argc, char **argv)
      printf("%*E ",10, gtime2);
      printf("%*E ",10, gtime2/gtime1);
      printf("%*E ",10, gtime3);
+     printf("%*E ",10, gtime4);
      printf("%*E ",10, gtime4/gtime3);
-     printf("%*E ",10, gtime5);
      printf("%*E ",10, gtime5);
      printf("%*E ",10, gtime6);
      printf("%*E ",10, time7);
