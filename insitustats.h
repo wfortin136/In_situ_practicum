@@ -20,6 +20,13 @@ struct var_stats
 };
 typedef struct var_stats var_stats;
 
+struct field_vals_array
+{
+  field_val* values;
+  int array_size;
+};
+typedef struct field_vals_array field_vals_array;
+
 struct field_val
 {
   char* name;

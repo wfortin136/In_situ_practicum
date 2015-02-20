@@ -23,6 +23,27 @@ int* set_indicies(int i_x, int i_y, int i_z)
   return x;
 }
 
+field_vals_array* new_field_vals_array(){
+  field_vals_array* s = (field_vals_array*)malloc(field_vals_array);
+  if(!array){
+    perror("malloc");
+    MPI_Abort(MPI_COMM_WORLD, -1);
+  }
+  field_val* array = (field_val*)malloc(0);
+  s->array;
+  s->array_size=0;
+  return s;
+}
+
+field_vals_array new_val_in_field_array(field_vals_array* array, char* name, double* data_set){
+  
+  array->array_size+= 1;
+  array->values = (field_val*)realloc(array->values,(array->array_size)*sizeof(field_val*));
+  
+  array->values[array_size-1] = field_val_new(name, data_set);
+  return array;
+}
+
 field_val* field_val_new(char* name, double* data_set){
   
   field_val* f = (field_val*)malloc(sizeof(field_val));
