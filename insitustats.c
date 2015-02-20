@@ -9,6 +9,24 @@
 #include <mpi.h>
 #include <stdint.h>
 
+//private prototypes
+static void convert_to_2d(char* name, two_d_slices* two_d_ptr, double* ThreeD_data, 
+  int* indicies, int dim);
+static var_stats* str_stat_new(double* data_set);
+
+static var_stats* str_stat_new_g();
+
+static void compute_stats(var_stats * var_struct,int* ind);
+
+static void compute_histo(histogram * histo, double* data_set, 
+  double min, double max, int* ind);
+
+static void free_var_struct(var_stats * var_struct);
+
+static void free_histo_struct(histogram * histo);
+//
+
+
 int* set_indicies(int i_x, int i_y, int i_z)
 {
   int* x = (int*)malloc(sizeof(int)*3);
@@ -23,24 +41,21 @@ int* set_indicies(int i_x, int i_y, int i_z)
   return x;
 }
 
-field_vals_array* new_field_vals_array(){
-  field_vals_array* s = (field_vals_array*)malloc(field_vals_array);
-  if(!array){
+field_val** new_vals_array(){
+  
+  field_val** a = (field_val**) malloc(0);
+  if(!a){
     perror("malloc");
     MPI_Abort(MPI_COMM_WORLD, -1);
   }
-  field_val* array = (field_val*)malloc(0);
-  s->array;
-  s->array_size=0;
-  return s;
+
+  return a;
 }
 
-field_vals_array new_val_in_field_array(field_vals_array* array, char* name, double* data_set){
+vals_array new_val_in_field_array(vals_array array, char* name, double* data_set){
+  array = (vals_array)realloc(array,sizeof(field_val*));
   
-  array->array_size+= 1;
-  array->values = (field_val*)realloc(array->values,(array->array_size)*sizeof(field_val*));
-  
-  array->values[array_size-1] = field_val_new(name, data_set);
+  array[0]= field_val_new(name, data_set);
   return array;
 }
 
@@ -97,7 +112,7 @@ two_d_slices* create_2d_slices(char* name, double* data_set, int* indicies, int 
   return s;
 }
 
-void convert_to_2d(char* name, two_d_slices* two_d_ptr, double* ThreeD_data, 
+static void convert_to_2d(char* name, two_d_slices* two_d_ptr, double* ThreeD_data, 
     int* indicies, int dim)
 {
   int i,j,k, index1, index2, index3;
@@ -159,7 +174,7 @@ void convert_to_2d(char* name, two_d_slices* two_d_ptr, double* ThreeD_data,
   free(temp_array);
 }
 
-var_stats* str_stat_new(double* data_set)
+static var_stats* str_stat_new(double* data_set)
 {
 
   var_stats * n = (var_stats*)malloc(sizeof(var_stats));
@@ -180,7 +195,7 @@ var_stats* str_stat_new(double* data_set)
 //Different then str_stat_new because it doesn't pass data set
 //May consider passing empty data set instead of allocating
 //within function
-var_stats* str_stat_new_g()
+static var_stats* str_stat_new_g()
 {
 
   var_stats * n = (var_stats*)malloc(sizeof(var_stats));
@@ -223,7 +238,7 @@ void compute_var_stats(field_val* f_val, int* indicies)
   compute_stats(f_val->field_str, indicies);
 }
 
-void compute_stats(var_stats * var_struct,int* ind)
+static void compute_stats(var_stats * var_struct,int* ind)
 {
   unsigned long long i, index;
   double sum=0, min, max;
@@ -278,7 +293,7 @@ void calc_histogram(field_val* fv_histo, field_val* fv_data,
 }
 
 //static void compute_histo(var_stats * var_struct)
-void compute_histo(histogram * histo, double* data_set, 
+static void compute_histo(histogram * histo, double* data_set, 
     double min, double max, int* ind)
 {
   int i, index, lower, upper;
@@ -395,7 +410,7 @@ void free_field_val(field_val* fv)
   free(fv);
 }
 
-void free_var_struct(var_stats * var_struct)
+static void free_var_struct(var_stats * var_struct)
 {
   free_histo_struct(var_struct->histo);
   free(var_struct);
@@ -416,7 +431,7 @@ void free_2d_slices(two_d_slices* slices_str)
   free(slices_str);
 }
 
-void free_histo_struct(histogram * histo)
+static void free_histo_struct(histogram * histo)
 {
   free(histo->index);
   free(histo->count);
