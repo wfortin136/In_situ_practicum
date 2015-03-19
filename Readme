@@ -1,0 +1,85 @@
+In-situ Statistical Analysis for CESM (Community Earth System Model)
+
+1. Overview
+2. System Requirements
+3. References and Links
+4. Description of Files Included
+5. Installation and Execution Instructions
+6. Contact Information
+
+***********************
+1. Overview
+The In-situ Statistical library has been developed to improve runtime of CESM
+climate simulations. The intent is to isolate portions of the post-processing
+process that can be run in-sutu and provide those portions as functions to be
+implemented using the in-situ library. Currently, the functions we have
+implemented are as follows:
+- min
+- max
+- mean
+- histogram
+*- vorticity
+*- divergence
+
+The in-situ library takes the 3-dimensional data from CESM and runs the above
+statistics on the specified domain.... need more detail once I get more
+familiarity with CESM.
+
+***********************
+
+***********************
+2. System Requirements
+
+1) Implementation of MPI
+2) C Compiler
+3) Fortran Compiler
+*4) CESM
+
+***********************
+
+***********************
+3. References and Links
+
+In-situ C library and reference documents
+https://github.com/wfortin136/In_situ_practicum
+
+CESM Model
+http://www.cesm.ucar.edu/models/cesm1.2/
+
+***********************
+3. Description of Files Included
+
+- insitustats.c
+- insitustats.h
+- parallel_3D.c
+- Readme
+- Makefile
+- insitu_run.sh
+*- results
+
+***********************
+
+***********************
+4. Installation and Execution Instructions
+
+MPI: Refer to following sites for installation
+- MPICH2: http://www.mpich.org/
+- OpenMPI: http://www.open-mpi.org/
+- MPVA: http://mvapich.cse.ohio-state.edu/
+
+CESM: http://www.cesm.ucar.edu/models/cesm1.2/cesm/doc/usersguide/x290.html 
+
+In-situ library:
+Step 1) Install an implementation of MPI
+Step 2)
+Step 3)
+***********************
+
+***********************
+4. Contact Information
+
+Venkat Vishwanath: venkat@anl.gov
+Preeti Malakar: pmalakar@anl.gov
+Billy Fortin: wjf136@uchicago.edu
+
+***********************

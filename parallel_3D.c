@@ -154,7 +154,6 @@ int main(int argc, char **argv)
   if (0 == rank){
  
     if(argc>5) printf("%s ", argv[5]);
-    //test 
     printf("%d ", g_z);
     //printf("%dX%dX%d ", g_z, g_y, g_x);
     printf("%d ", l_z);
@@ -234,6 +233,13 @@ int main(int argc, char **argv)
 
   pdata(rank, 0, "Pressure", 3, l_indicies, pressure);
 
+  int* test;
+
+  field_val** local_array;
+  local_array = new_vals_array();
+  local_array = new_val_in_field_array(local_array, "Local Pressure", pressure);
+  
+  printf("\n%s \n", get_var_name(local_array[0]));
   //Test variables for calc histogram for single rank
   field_val* g_pres_2 = field_val_new_empty("Global Pressure");
   field_val* g_temp_2 = field_val_new_empty("Global Temperature");
@@ -248,22 +254,10 @@ int main(int argc, char **argv)
   compute_var_stats(l_temp, l_indicies);
   compute_var_stats(l_dens, l_indicies);
 
-  //var_stats* l_pressure_str = str_stat_new(pressure);
-  //var_stats* l_temp_str = str_stat_new(temperature);
-  //var_stats* l_density_str = str_stat_new(density);
-  
   field_val* g_pres = field_val_new_empty("Global Pressure");
   field_val* g_temp = field_val_new_empty("Global Temperature");
   field_val* g_dens = field_val_new_empty("Global Density");
   
-  //var_stats* g_pressure_str = str_stat_new_g();
-  //var_stats* g_temp_str = str_stat_new_g();
-  //var_stats* g_density_str = str_stat_new_g();
- 
-  //compute_stats(l_pressure_str, l_indicies);
-  //compute_stats(l_temp_str, l_indicies);
-  //compute_stats(l_density_str, l_indicies);
-
   /*
   print_histo("Pressure", pressure_str->histo);
   print_histo("Temperature", temp_str->histo);
@@ -301,9 +295,6 @@ int main(int argc, char **argv)
   MPI_Allreduce(get_mean_ptr(l_pres), get_mean_ptr(g_pres), 1,MPI_DOUBLE, 
       MPI_SUM, MPI_COMM_WORLD);
   
-  //MPI_Allreduce(&(l_pressure_str->mean), &(g_pressure_str->mean), 1,MPI_DOUBLE, 
-  //    MPI_SUM, MPI_COMM_WORLD);
-  
   t2=MPI_Wtime();
 
   MPI_Allreduce(get_mean_ptr(l_dens), get_mean_ptr(g_dens), 1,MPI_DOUBLE, 
@@ -324,26 +315,7 @@ int main(int argc, char **argv)
       MPI_MAX, MPI_COMM_WORLD);
   MPI_Allreduce(get_max_ptr(l_temp), get_max_ptr(g_temp), 1,MPI_DOUBLE, 
       MPI_MAX, MPI_COMM_WORLD);
-/* 
-  MPI_Allreduce(&(l_density_str->mean), &(g_density_str->mean), 1,MPI_DOUBLE, 
-      MPI_SUM, MPI_COMM_WORLD);
-  MPI_Allreduce(&(l_temp_str->mean), &(g_temp_str->mean), 1,MPI_DOUBLE, 
-      MPI_SUM, MPI_COMM_WORLD);
 
-  MPI_Allreduce(&(l_pressure_str->min), &(g_pressure_str->min), 1,MPI_DOUBLE, 
-      MPI_MIN, MPI_COMM_WORLD);
-  MPI_Allreduce(&(l_density_str->min), &(g_density_str->min), 1,MPI_DOUBLE, 
-      MPI_MIN, MPI_COMM_WORLD);
-  MPI_Allreduce(&(l_temp_str->min), &(g_temp_str->min), 1,MPI_DOUBLE, 
-      MPI_MIN, MPI_COMM_WORLD);
-  
-  MPI_Allreduce(&(l_pressure_str->max), &(g_pressure_str->max), 1,MPI_DOUBLE, 
-      MPI_MAX, MPI_COMM_WORLD);
-  MPI_Allreduce(&(l_density_str->max), &(g_density_str->max), 1,MPI_DOUBLE, 
-      MPI_MAX, MPI_COMM_WORLD);
-  MPI_Allreduce(&(l_temp_str->max), &(g_temp_str->max), 1,MPI_DOUBLE, 
-      MPI_MAX, MPI_COMM_WORLD);
-*/
   t3=MPI_Wtime();
 
   *get_mean_ptr(g_pres)/=nprocs;
@@ -426,7 +398,7 @@ int main(int argc, char **argv)
    if(rank==0){
      time7 = hist_t_5-hist_t_4;
      time8 = hist_t_6-hist_t_4;
-     
+     /* 
      printf("%*E ",10, gtime1);
      printf("%*E ",10, gtime2);
      printf("%*E ",10, gtime2/gtime1);
@@ -439,7 +411,7 @@ int main(int argc, char **argv)
      printf("%*E ",10, time8);
      printf("%*E ",10, gruntime);
      printf("\n");
-     /*
+     
      printf("Reduce All-1:       %E\n",gtime1);
      printf("Reduce All-9:       %E\n",gtime2);
      printf("Scale 1-9:          %f\n",gtime2/gtime1);
@@ -503,14 +475,7 @@ int main(int argc, char **argv)
   free_2d_slices(x_pres);
   free_2d_slices(y_pres);
   free_2d_slices(z_pres);
-/*  
-  free_var_struct(l_pressure_str);
-  free_var_struct(l_temp_str);
-  free_var_struct(l_density_str);
-  free_var_struct(g_pressure_str);
-  free_var_struct(g_temp_str);
-  free_var_struct(g_density_str);
-*/
+ 
   free_indicies(l_indicies);
       
   //
