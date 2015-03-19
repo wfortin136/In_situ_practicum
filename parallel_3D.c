@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include "insitustats.h"
+#include "copy.c"
 
 int dim = 3;
 
@@ -230,7 +231,9 @@ int main(int argc, char **argv)
   //**********************************  
   //Billy
   //Define struct for stats
-  
+
+  pdata(rank, 0, "Pressure", 3, l_indicies, pressure);
+
   //Test variables for calc histogram for single rank
   field_val* g_pres_2 = field_val_new_empty("Global Pressure");
   field_val* g_temp_2 = field_val_new_empty("Global Temperature");

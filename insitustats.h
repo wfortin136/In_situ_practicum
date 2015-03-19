@@ -20,13 +20,6 @@ struct var_stats
 };
 typedef struct var_stats var_stats;
 
-struct field_vals_array
-{
-  field_val* values;
-  int array_size;
-};
-typedef struct field_vals_array field_vals_array;
-
 struct field_val
 {
   char* name;
@@ -34,6 +27,14 @@ struct field_val
   var_stats* field_str;
 };
 typedef struct field_val field_val;
+
+struct field_vals_array
+{
+  field_val* values;
+  int array_size;
+};
+typedef struct field_vals_array field_vals_array;
+
 
 //typedef struct field_val* two_d_slices;
 struct two_d_slices
