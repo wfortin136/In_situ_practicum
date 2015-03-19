@@ -57,7 +57,7 @@ do
       #$run_command $num_proc $run_file $g_param $l_param | sudo tee -a $out_file
       #of the form: runjob --np # -p # --block $COBALT_PARTNAME --verbose=INFO : run1.exe arg1
       #from: http://www.alcf.anl.gov/user-guides/running-jobs#submitting-a-script-job
-      $run_command $LOCARGS $num_proc $per_node $stand_input $run_file $g_param $l_param $nodes >> $out_file
+      echo "$run_command $LOCARGS $num_proc $per_node $stand_input $run_file $g_param $l_param $nodes >> $out_file"
         fi
       done
     fi
